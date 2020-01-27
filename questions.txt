@@ -1,0 +1,44 @@
+Forward Mode questions: 1. Can you think of any other names for the
+"real" and "epsilon_coef" variables that are part of our Dual class?
+
+Answer: could be something like 'function_val' and derivative or
+something like this
+
+Reverse Mode questions:
+
+1. Would the backward trace work if we set up the list in this order:
+[x1, x2, v4, v3, v2]? Why or why not?
+
+Answer: No, the nodes would not be iterated over in proper order
+e.g. this order of iteration does not conform to the rules of partial
+derivatives. Further, the v1 node is never touched. Hence the
+given answers will be wrong.
+
+2. How would we modify the reverse mode code so we can call
+.backward() only on the last node and not have to iterate over a list?
+
+Answer: in the backward() function, recursively call backward() on a
+and b after upating their gradient, i.e. something like this:
+
+def backward(self):
+
+  dzda = 1.0
+  dzdb = 1.0
+
+  self.a.grad += dzda*self.grad
+  self.b.grad += dzdb*self.grad
+
+  self.a.backward()
+  self.b.backward()
+
+In this manner, we would simply have to call the backward() on v5 to
+completely propagate the gradients.
+
+3. Graphs have to be directed acyclic graphs for this sort of reverse
+mode autodiff to work. When we create the list [x1, x2, v1, v2, v3,
+v4], what are we doing to the nodes of the graph? Think back to data
+structures.
+
+Answer: we are implicitly iterating over the graph in a topological
+ordering. This ensures that the gradients are propagated through the
+graph properly.
